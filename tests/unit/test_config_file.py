@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import pytest
+
 from generic_scraper.config import ScraperType
 
 
@@ -19,3 +21,10 @@ def test_from_file_applies_defaults_for_omitted_fields(tmp_path):
     cfg = ScraperType.from_file(p)
     assert cfg.scraper_engine == "requests"
     assert cfg.processing_type == "lxml"
+
+
+def test_from_file_raises_on_unrecognized_key(tmp_path):
+    p = tmp_path / "scraper.yaml"
+    p.write_text("scraper_enginee: playwright\n")
+    with pytest.raises(ValueError, match="scraper_enginee"):
+        ScraperType.from_file(p)

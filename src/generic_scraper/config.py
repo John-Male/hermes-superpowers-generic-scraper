@@ -33,6 +33,14 @@ class ScraperType:
         extra string coercion is required here.
         """
         raw = yaml.safe_load(Path(path).read_text()) or {}
+        if not isinstance(raw, dict):
+            raise ValueError("Config file must contain a YAML mapping")
         valid_keys = {f.name for f in fields(ScraperType)}
+        unknown_keys = set(raw.keys()) - valid_keys
+        if unknown_keys:
+            raise ValueError(
+                f"Unrecognized ScraperType config key(s): "
+                f"{', '.join(sorted(unknown_keys))}"
+            )
         kwargs = {k: v for k, v in raw.items() if k in valid_keys}
         return ScraperType(**kwargs)
