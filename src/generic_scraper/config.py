@@ -1,6 +1,9 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
+from pathlib import Path
+
+import yaml
 
 
 @dataclass
@@ -19,3 +22,17 @@ class ScraperType:
     @staticmethod
     def empty() -> "ScraperType":
         return ScraperType()
+
+    @staticmethod
+    def from_file(path: str | Path) -> "ScraperType":
+        """Load a `ScraperType` from a YAML config file.
+
+        Top-level YAML keys matching `ScraperType` field names are used to
+        construct the instance; omitted fields fall back to their dataclass
+        defaults. YAML natively types `true`/`false`/digit scalars, so no
+        extra string coercion is required here.
+        """
+        raw = yaml.safe_load(Path(path).read_text()) or {}
+        valid_keys = {f.name for f in fields(ScraperType)}
+        kwargs = {k: v for k, v in raw.items() if k in valid_keys}
+        return ScraperType(**kwargs)
