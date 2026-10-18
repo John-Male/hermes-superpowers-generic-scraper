@@ -3,6 +3,8 @@ from __future__ import annotations
 from generic_scraper.config import ScraperType
 from generic_scraper.engines import Engine, get_engine_class
 from generic_scraper.errors import EngineUnavailableError
+from generic_scraper.parsers import ParsedDocument, get_parser
+from generic_scraper.retry import retry_with_backoff
 
 _DEFAULT_FALLBACK_ENGINE = "requests"
 
@@ -32,6 +34,15 @@ class Scraper:
 
         self.engine_name: str = engine_name
         self.engine: Engine = engine
+
+    def fetch(self, url: str) -> ParsedDocument:
+        """Fetch `url` (with retry on transient errors) and parse the result."""
+        html = retry_with_backoff(
+            lambda: self.engine.fetch(url),
+            attempts=self.config.retry_attempts,
+            retry_on=(ConnectionError, TimeoutError),
+        )
+        return get_parser(self.config.processing_type).parse(html)
 
     def _determine_fallback(self, primary_engine_name: str) -> str:
         """Determine which engine to fall back to when `primary_engine_name` fails.
