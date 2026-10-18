@@ -19,6 +19,12 @@ class ScraperType:
     processing_type: str = "beautifulsoup"
     retry_attempts: int = 3
 
+    def __post_init__(self) -> None:
+        if self.retry_attempts < 1:
+            raise ValueError(
+                f"retry_attempts must be >= 1, got {self.retry_attempts!r}"
+            )
+
     @staticmethod
     def empty() -> "ScraperType":
         return ScraperType()

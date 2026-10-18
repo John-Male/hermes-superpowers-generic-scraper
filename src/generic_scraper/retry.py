@@ -23,6 +23,8 @@ def retry_with_backoff(
     ``retry_on`` propagate immediately without retry.
     """
     last_exc: Exception | None = None
+    if attempts <= 0:
+        raise ValueError(f"attempts must be >= 1, got {attempts!r}")
     for attempt_index in range(attempts):
         try:
             return fn()

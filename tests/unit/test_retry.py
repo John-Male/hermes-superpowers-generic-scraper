@@ -31,3 +31,19 @@ def test_retry_does_not_catch_unlisted_exceptions():
 
     with pytest.raises(ValueError):
         retry_with_backoff(raises_value_error, attempts=3, retry_on=(ConnectionError,), sleep=lambda s: None)
+
+
+def test_retry_raises_value_error_for_zero_attempts():
+    def never_called():
+        raise AssertionError("fn should not be called when attempts <= 0")
+
+    with pytest.raises(ValueError):
+        retry_with_backoff(never_called, attempts=0, retry_on=(ConnectionError,), sleep=lambda s: None)
+
+
+def test_retry_raises_value_error_for_negative_attempts():
+    def never_called():
+        raise AssertionError("fn should not be called when attempts <= 0")
+
+    with pytest.raises(ValueError):
+        retry_with_backoff(never_called, attempts=-1, retry_on=(ConnectionError,), sleep=lambda s: None)

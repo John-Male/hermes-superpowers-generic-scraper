@@ -32,3 +32,11 @@ def test_main_returns_1_on_invalid_config_key(tmp_path, capsys):
     exit_code = main(["fetch", "https://example.com", "--config", str(p)])
     assert exit_code == 1
     assert "Error:" in capsys.readouterr().out
+
+
+def test_main_returns_1_on_zero_retry_attempts_config(tmp_path, capsys):
+    p = tmp_path / "zero_retries.yaml"
+    p.write_text("retry_attempts: 0\n")
+    exit_code = main(["fetch", "https://example.com", "--config", str(p)])
+    assert exit_code == 1
+    assert "Error:" in capsys.readouterr().out

@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+import pytest
+
 from generic_scraper.config import ScraperType
 
 
@@ -15,3 +19,13 @@ def test_scraper_type_accepts_explicit_engine_and_browser():
 
 def test_empty_factory_matches_defaults():
     assert ScraperType.empty() == ScraperType()
+
+
+def test_zero_retry_attempts_raises_value_error():
+    with pytest.raises(ValueError):
+        ScraperType(retry_attempts=0)
+
+
+def test_negative_retry_attempts_raises_value_error():
+    with pytest.raises(ValueError):
+        ScraperType(retry_attempts=-1)
