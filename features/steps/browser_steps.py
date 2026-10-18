@@ -26,3 +26,17 @@ def step_scraper_launches_browser(context, browser, engine):
     assert context.scraper.engine_name == engine, (
         f"Expected engine {engine!r}, got {context.scraper.engine_name!r}"
     )
+    # Not sufficient alone (the two checks above only confirm the config
+    # echoed its own input and the engine name was selected) -- this
+    # confirms the browser_type actually reached the mocked engine's
+    # launch call, via the recording launcher patched in environment.py.
+    assert context.browser_launch_calls, (
+        "Expected the browser launcher to have been called at least once, "
+        "but no calls were recorded"
+    )
+    assert context.browser_launch_calls[-1] == browser, (
+        f"Expected the mocked engine's launcher to be called with "
+        f"browser_type {browser!r}, but the last recorded call was "
+        f"{context.browser_launch_calls[-1]!r} "
+        f"(all calls: {context.browser_launch_calls!r})"
+    )

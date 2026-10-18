@@ -20,21 +20,24 @@ _PATCHED_MODULES = (playwright_engine, selenium_engine)
 _originals: dict[str, tuple] = {}
 
 
-def _noop_launcher(browser_type):
-    return None
-
-
 def _always_available():
     return True
 
 
 def before_all(context):
+    def _recording_launcher(browser_type):
+        # Record each call's browser_type onto the context so steps can
+        # assert the mocked engine actually received the expected value,
+        # instead of only re-checking the input that built the config.
+        context.browser_launch_calls.append(browser_type)
+        return None
+
     for module in _PATCHED_MODULES:
         _originals[module.__name__] = (
             module._default_browser_launcher,
             module._default_availability_check,
         )
-        module._default_browser_launcher = _noop_launcher
+        module._default_browser_launcher = _recording_launcher
         module._default_availability_check = _always_available
 
 
@@ -50,6 +53,7 @@ def before_scenario(context, scenario):
     context.scraper_config = None
     context.scraper = None
     context.error = None
+    context.browser_launch_calls = []
 
 
 def after_scenario(context, scenario):
