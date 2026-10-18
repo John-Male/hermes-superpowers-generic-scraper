@@ -27,3 +27,4 @@ def get_engine_class(name: str) -> type[Engine]:
 
 # Import built-in engines so they self-register at package import time.
 from generic_scraper.engines import requests_engine  # noqa: E402,F401
+from generic_scraper.engines import playwright_engine, selenium_engine  # noqa: E402,F401
