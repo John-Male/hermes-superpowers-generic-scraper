@@ -31,6 +31,7 @@ def coerce(value: str) -> str | bool | int:
 
 
 @given('I have a ScraperType configuration with "{key}" set to "{value}"')
+@given('a ScraperType configuration with "{key}" set to "{value}"')
 @given('"{key}" set to "{value}"')
 def step_set_config_field(context, key, value):
     context.config_kwargs[key] = coerce(value)
