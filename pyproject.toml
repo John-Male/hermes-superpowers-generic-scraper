@@ -15,6 +15,9 @@ dependencies = [
     "PyYAML",
 ]
 
+[project.scripts]
+generic-scraper = "generic_scraper.cli:main"
+
 [project.optional-dependencies]
 browsers = [
     "playwright",
