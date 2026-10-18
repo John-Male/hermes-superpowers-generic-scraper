@@ -23,3 +23,7 @@ def get_engine_class(name: str) -> type[Engine]:
         return _REGISTRY[name]
     except KeyError:
         raise UnsupportedScraperEngineError(name) from None
+
+
+# Import built-in engines so they self-register at package import time.
+from generic_scraper.engines import requests_engine  # noqa: E402,F401
