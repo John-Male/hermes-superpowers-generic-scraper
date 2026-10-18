@@ -55,7 +55,12 @@ def step_default_config_exists(context):
 @when("I initialize the Scraper on a worker node")
 def step_initialize_scraper(context):
     context.scraper_config = ScraperType(**context.config_kwargs)
-    context.scraper = Scraper(context.scraper_config)
+    context.init_error = None
+    try:
+        context.scraper = Scraper(context.scraper_config)
+    except Exception as exc:  # noqa: BLE001 - captured for error-path scenarios
+        context.scraper = None
+        context.init_error = exc
 
 
 @then('the Scraper should use the "{engine}" engine')
