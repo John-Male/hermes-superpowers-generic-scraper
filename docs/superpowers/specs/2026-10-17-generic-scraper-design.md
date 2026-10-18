@@ -99,6 +99,23 @@ tested package.
 - Scope extension: CLI entry point, file-based config loading, and
   logging/observability are in scope, in addition to the 8 feature
   files.
+- Browser/engine testing: Playwright and Selenium are mocked at the
+  engine boundary. The test suite does not launch real local browsers,
+  install browser binaries, or depend on chromedriver/geckodriver;
+  "launching chrome/firefox" is verified by asserting the Scraper
+  selected and configured the right engine/browser combination against
+  a fake/mock engine interface, not a real browser window.
+- Engine availability/failure detection (builder's call, settled): a
+  real capability-check seam is used in production code (e.g. probing
+  whether the engine's package/driver is importable/usable), but it is
+  injectable so tests can force "unavailable"/"fails to start" results
+  deterministically without depending on real environment conditions.
+- Worker-flavored step wording ("on a Swarm Forge worker" / "on a worker
+  node" vs. plain "I initialize the Scraper") (builder's call, settled):
+  this is leftover phrasing from the Swarm Forge branding removal with
+  no intended behavioral difference. All such steps share the same step
+  definitions; no per-node/per-environment concept is introduced into
+  the Scraper API because of this wording.
 
 ## Left to the builder
 
