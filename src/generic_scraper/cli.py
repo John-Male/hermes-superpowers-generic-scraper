@@ -51,7 +51,7 @@ def main(argv: list[str] | None = None) -> int:
         scraper = Scraper(config)
         document = scraper.fetch(args.url)
         print(document.title)
-    except ScraperError as exc:
+    except (ScraperError, ValueError) as exc:
         print(f"Error: {exc}")
         return 1
 

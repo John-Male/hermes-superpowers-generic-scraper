@@ -24,3 +24,11 @@ def test_main_applies_config_file(tmp_path, monkeypatch, capsys):
     p.write_text("processing_type: lxml\n")
     exit_code = main(["fetch", "https://example.com", "--config", str(p)])
     assert exit_code == 0
+
+
+def test_main_returns_1_on_invalid_config_key(tmp_path, capsys):
+    p = tmp_path / "bad_cfg.yaml"
+    p.write_text("scraper_enginee: playwright\n")
+    exit_code = main(["fetch", "https://example.com", "--config", str(p)])
+    assert exit_code == 1
+    assert "Error:" in capsys.readouterr().out
