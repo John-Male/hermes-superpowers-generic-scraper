@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "generic-scraper"
+version = "0.1.0"
+description = "A generic, configuration-driven web scraper."
+requires-python = ">=3.9"
+license = { text = "MIT" }
+dependencies = [
+    "requests",
+    "beautifulsoup4",
+    "lxml",
+    "PyYAML",
+]
+
+[project.optional-dependencies]
+browsers = [
+    "playwright",
+    "selenium",
+]
+dev = [
+    "behave",
+    "pytest",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
