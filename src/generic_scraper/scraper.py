@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import logging
+
 from generic_scraper.config import ScraperType
 from generic_scraper.engines import Engine, get_engine_class
 from generic_scraper.errors import EngineUnavailableError
@@ -7,6 +9,8 @@ from generic_scraper.parsers import ParsedDocument, get_parser
 from generic_scraper.retry import retry_with_backoff
 
 _DEFAULT_FALLBACK_ENGINE = "requests"
+
+_logger = logging.getLogger("generic_scraper")
 
 
 class Scraper:
@@ -25,8 +29,14 @@ class Scraper:
                     f"Engine {engine_name!r} is not available"
                 )
             engine.start()
-        except EngineUnavailableError:
+        except EngineUnavailableError as exc:
             fallback_name = self._determine_fallback(engine_name)
+            _logger.warning(
+                "Engine %r unavailable (%s); fallback to %r",
+                engine_name,
+                exc,
+                fallback_name,
+            )
             fallback_class = get_engine_class(fallback_name)
             engine = fallback_class(config)
             engine.start()
@@ -34,15 +44,28 @@ class Scraper:
 
         self.engine_name: str = engine_name
         self.engine: Engine = engine
+        _logger.info("Scraper initialized with engine %r", self.engine_name)
 
     def fetch(self, url: str) -> ParsedDocument:
         """Fetch `url` (with retry on transient errors) and parse the result."""
+
+        def _attempt_fetch() -> str:
+            try:
+                return self.engine.fetch(url)
+            except (ConnectionError, TimeoutError) as exc:
+                _logger.warning("Retry attempt for %s after error: %s", url, exc)
+                raise
+
         html = retry_with_backoff(
-            lambda: self.engine.fetch(url),
+            _attempt_fetch,
             attempts=self.config.retry_attempts,
             retry_on=(ConnectionError, TimeoutError),
         )
-        return get_parser(self.config.processing_type).parse(html)
+        document = get_parser(self.config.processing_type).parse(html)
+        _logger.info(
+            "Fetched %s using %r processor", url, self.config.processing_type
+        )
+        return document
 
     def _determine_fallback(self, primary_engine_name: str) -> str:
         """Determine which engine to fall back to when `primary_engine_name` fails.
