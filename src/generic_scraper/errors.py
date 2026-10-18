@@ -19,3 +19,7 @@ class EngineUnavailableError(ScraperError):
 
 class EngineStartError(EngineUnavailableError):
     """Raised when an engine fails to start on the worker."""
+
+
+class NoSuitableNodeError(ScraperError):
+    """Raised when no registered node satisfies the requested constraints."""
